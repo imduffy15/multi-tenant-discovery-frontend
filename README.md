@@ -1,4 +1,6 @@
-# multi-tenant-discovery-frontend
+# WIP: Multi Tenant Discovery frontend
+
+![](app.gif)
 
 ## Project setup
 ```
