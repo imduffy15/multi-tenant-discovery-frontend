@@ -2,12 +2,13 @@
   <div>
     <v-card v-if="completed">
       <v-card-title primary-title>
-          <div>
-            <div class="headline">Your tenant has been created successfully</div>
-          </div>
+        <div>
+          <div class="headline">Your tenant has been created successfully</div>
+        </div>
       </v-card-title>
       <v-card-text>
-        Thank you for signing up, your tenant is available at <a :href="loginUrl()">{{loginUrl()}}</a>
+        Thank you for signing up, your tenant is available at
+        <a :href="loginUrl()">{{ loginUrl() }}</a>
       </v-card-text>
     </v-card>
     <v-card v-else>
@@ -15,7 +16,9 @@
         <v-card-title primary-title>
           <div>
             <div class="headline">Create a new tenant</div>
-            <span class="grey--text">Fill out the information below to create a new tenant</span>
+            <span class="grey--text"
+              >Fill out the information below to create a new tenant</span
+            >
           </div>
         </v-card-title>
         <v-card-text>
@@ -70,11 +73,14 @@
             block
             depressed
             color="primary"
-          >Create</v-btn>
+            >Create</v-btn
+          >
         </v-card-actions>
       </v-form>
     </v-card>
-    <div class="ma-4 text-xs-center title font-weight-light"><router-link to="/">Looking for an existing tenant?</router-link></div>
+    <div class="ma-4 text-xs-center title font-weight-light">
+      <router-link to="/">Looking for an existing tenant?</router-link>
+    </div>
   </div>
 </template>
 
@@ -137,6 +143,13 @@ export default {
           })
           // eslint-disable-next-line no-unused-vars
           .then(result => {
+            console.log(result.data);
+
+            for (var cookie of result.data.cookies) {
+              console.log("Setting cookie " + cookie);
+              document.cookie = cookie;
+            }
+
             this.completed = true;
             this.loading = false;
           })
