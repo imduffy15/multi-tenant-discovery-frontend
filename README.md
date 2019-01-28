@@ -1,4 +1,4 @@
-# WIP: Multi Tenant Discovery frontend
+# WIP: Multi Tenant Manager frontend
 
 ![](app.gif)
 

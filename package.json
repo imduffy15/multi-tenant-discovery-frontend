@@ -1,5 +1,5 @@
 {
-  "name": "multi-tenant-discovery-frontend",
+  "name": "multi-tenant-manager-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {

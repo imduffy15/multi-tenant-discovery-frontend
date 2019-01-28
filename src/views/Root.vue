@@ -1,46 +1,41 @@
 <template>
-  <section>
-    <v-layout row class="my-5">
-      <v-spacer></v-spacer>
-      <v-layout column>
-        <div class="my-3" v-if="notFound">
-          <v-alert :value="true" type="info">{{notFound}}</v-alert>
-        </div>
-        <v-card>
-          <v-form ref="form" v-model="valid">
-            <v-card-title primary-title>
-              <div>
-                <div class="headline">Sign in to your tenant</div>
-                <span class="grey--text">Enter your tenant's URL.</span>
-              </div>
-            </v-card-title>
-            <v-card-text>
-              <v-text-field
-                v-model="tenant"
-                label="Tenant"
-                :single-line="true"
-                suffix=".ianduffy.ie"
-                outline
-                required
-                :rules="tenantRules"
-              ></v-text-field>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn
-                :loading="loading"
-                :disabled="!valid || loading"
-                @click="submit"
-                block
-                depressed
-                color="primary"
-              >Continue</v-btn>
-            </v-card-actions>
-          </v-form>
-        </v-card>
-      </v-layout>
-      <v-spacer></v-spacer>
-    </v-layout>
-  </section>
+  <div>
+    <div class="my-3" v-if="notFound">
+      <v-alert :value="true" type="info">{{notFound}}</v-alert>
+    </div>
+    <v-card>
+      <v-form ref="form" v-model="valid">
+        <v-card-title primary-title>
+          <div>
+            <div class="headline">Sign in to your tenant</div>
+            <span class="grey--text">Enter your tenant's URL.</span>
+          </div>
+        </v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="tenant"
+            label="Tenant"
+            :single-line="true"
+            :suffix="'.' + hostname"
+            outline
+            required
+            :rules="tenantRules"
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            :loading="loading"
+            :disabled="!valid || loading"
+            @click="submit"
+            block
+            depressed
+            color="primary"
+          >Sign In</v-btn>
+        </v-card-actions>
+      </v-form>
+    </v-card>
+    <div class="ma-4 text-xs-center title font-weight-light"><router-link to="create">Create a new tenant</router-link></div>
+  </div>
 </template>
 
 <script>
@@ -63,6 +58,11 @@ export default {
       notFound: null
     };
   },
+  computed: {
+    hostname: () => {
+      return window.location.host;
+    }
+  },
   methods: {
     submit() {
       if (this.$refs.form.validate()) {
@@ -72,7 +72,7 @@ export default {
             "/auth/realms/" + this.tenant + "/.well-known/openid-configuration"
           )
           .then(() => {
-            window.location = "http://" + this.tenant + ".ianduffy.ie";
+            window.location = "//" + this.tenant + "." + this.hostname;
           })
           .catch(() => {
             this.notFound = this.tenant + " does not exist";
