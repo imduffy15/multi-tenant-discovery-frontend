@@ -1,4 +1,6 @@
 import Vue from "vue";
+import axios from "axios";
+
 import "./plugins/vuetify";
 import App from "./App.vue";
 import router from "./router";
@@ -13,3 +15,16 @@ new Vue({
   store,
   render: h => h(App)
 }).$mount("#app");
+
+axios.interceptors.request.use(
+  function(config) {
+    const token = store.state.authentication.access_token;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  function(err) {
+    return Promise.reject(err);
+  }
+);

@@ -23,6 +23,7 @@
           ></v-text-field>
         </v-card-text>
         <v-card-actions>
+          <v-layout column>
           <v-btn
             :loading="loading"
             :disabled="!valid || loading"
@@ -31,6 +32,8 @@
             depressed
             color="primary"
           >Sign In</v-btn>
+          <div class="ma-4 text-xs-center title font-weight-light grey--text">Don't know your tenant URL? <router-link to="find">Find your tenant URL</router-link></div>
+          </v-layout>
         </v-card-actions>
       </v-form>
     </v-card>
@@ -60,7 +63,7 @@ export default {
   },
   computed: {
     hostname: () => {
-      return window.location.host;
+      return window.location.hostname;
     }
   },
   methods: {

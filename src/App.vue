@@ -30,4 +30,8 @@ a {
 a:hover {
   text-decoration: underline;
 }
+* {
+  word-break: break-all;
+  white-space: normal;
+}
 </style>

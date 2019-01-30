@@ -22,6 +22,17 @@
           </div>
         </v-card-title>
         <v-card-text>
+          <v-flex xs12 class="text-xs-center text-sm-center text-md-center text-lg-center">
+            <img :src="imageUrl" height="150" v-if="imageUrl"/>
+            <v-text-field label="Select your logo" @click='pickFile' v-model='imageName' prepend-icon='attach_file'></v-text-field>
+            <input
+              type="file"
+              style="display: none"
+              ref="image"
+              accept="image/png, image/jpeg, image/svg+xml"
+              @change="onFileChanged"
+            >
+          </v-flex>
           <v-text-field
             v-model="form.tenant"
             label="Tenant"
@@ -30,31 +41,6 @@
             outline
             required
             :rules="tenantRules"
-          ></v-text-field>
-          <v-text-field
-            v-model="form.first_name"
-            label="Firstname"
-            placeholder="Homer"
-            outline
-            required
-            :rules="firstnameRules"
-          ></v-text-field>
-          <v-text-field
-            v-model="form.last_name"
-            label="Lastname"
-            placeholder="Simpson"
-            outline
-            required
-            :rules="lastnameRules"
-          ></v-text-field>
-          <v-text-field
-            v-model="form.email"
-            label="Email"
-            type="email"
-            placeholder="homer.simpson@globex.com"
-            outline
-            required
-            :rules="emailRules"
           ></v-text-field>
           <v-text-field
             v-model="form.password"
@@ -90,6 +76,7 @@ import axios from "axios";
 export default {
   beforeMount: () => {
     console.log("", window.location.host);
+    console.log("", window.location);
   },
   data: () => {
     return {
@@ -101,28 +88,20 @@ export default {
         v => (v && v.length <= 63) || "Tenant must be less than 63 characters",
         v => (v && !/\s/.test(v)) || "Tenant must contain no spaces",
         v =>
-          (v && new RegExp("[A-Za-z0-9]+").test(v)) ||
-          "Tenant must be a valid subdomain"
-      ],
-      firstnameRules: [v => !!v || "Firstname is required"],
-      lastnameRules: [v => !!v || "Lastname is required"],
-      emailRules: [
-        v => !!v || "Email is required",
-        v =>
-          (v &&
-            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-              v
-            )) ||
-          "Email must be a valid email"
+          (v && new RegExp("[a-z0-9]+").test(v)) ||
+          "Tenant must be a valid subdomain made up of lower case letters and numbers"
       ],
       passwordRules: [v => !!v || "Password is required"],
       notFound: null,
-      completed: false
+      completed: false,
+      imageName: "",
+      imageUrl: "",
+      imageFile: ""
     };
   },
   computed: {
     hostname: () => {
-      return window.location.host;
+      return window.location.hostname;
     },
     protocol: () => {
       return window.location.protocol;
@@ -132,26 +111,54 @@ export default {
     loginUrl() {
       return this.protocol + "//" + this.form.tenant + "." + this.hostname;
     },
+    pickFile() {
+      this.$refs.image.click();
+    },
+    onFileChanged(e) {
+      const files = e.target.files;
+      if (files[0] !== undefined) {
+        this.imageName = files[0].name;
+        if (this.imageName.lastIndexOf(".") <= 0) {
+          return;
+        }
+        const fr = new FileReader();
+        fr.readAsDataURL(files[0]);
+        fr.addEventListener("load", () => {
+          this.imageUrl = fr.result;
+          this.imageFile = files[0];
+        });
+      } else {
+        this.imageName = "";
+        this.imageFile = "";
+        this.imageUrl = "";
+      }
+    },
     submit() {
       this.loading = true;
       if (this.$refs.form.validate()) {
         axios
-          .post("/api/tenant", {
-            ...this.form,
-            origin: this.hostname,
-            protocol: this.protocol
-          })
-          // eslint-disable-next-line no-unused-vars
+          .post("/api/tenant", this.form)
           .then(result => {
-            console.log(result.data);
+            axios
+              .put(
+                "/api/tenant/" + result.data.tenant + "/logo",
+                this.imageFile,
+                {
+                  headers: {
+                    "Content-Type": "image/png"
+                  }
+                }
+              )
+              // eslint-disable-next-line no-unused-vars
+              .then(result => {
+                this.completed = true;
+                this.loading = false;
+              });
 
             for (var cookie of result.data.cookies) {
               console.log("Setting cookie " + cookie);
               document.cookie = cookie;
             }
-
-            this.completed = true;
-            this.loading = false;
           })
           .catch(err => {
             console.log(err);
