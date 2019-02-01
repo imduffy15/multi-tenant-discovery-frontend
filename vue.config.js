@@ -3,7 +3,7 @@ module.exports = {
     disableHostCheck: true,
     proxy: {
       "^/auth": {
-        target: "http://localhost:9080",
+        target: "https://account.dev.ianduffy.ie",
         secure: false,
         xfwd: false,
         changeOrigin: true
