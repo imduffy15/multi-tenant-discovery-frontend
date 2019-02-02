@@ -22,7 +22,7 @@
                 <v-layout align-center="" align-content-space-around="">
                   <v-flex xs2>
                       <v-img 
-                        :src="'/api/tenant/' + tenant.tenant + '/logo'"
+                        :src="tenant.image_url"
                         contain
                         min-height="96px"
                         max-height="96px"
@@ -44,6 +44,7 @@
           </v-layout>
         </v-container>
     </v-card>
+        <div class="ma-4 text-xs-center title font-weight-light"><router-link to="create">Create a new tenant</router-link></div>
   </div>
 </template>
 

@@ -82,7 +82,9 @@ export default {
     return {
       loading: false,
       valid: false,
-      form: {},
+      form: {
+        media_id: null
+      },
       tenantRules: [
         v => !!v || "Tenant is required",
         v => (v && v.length <= 63) || "Tenant must be less than 63 characters",
@@ -94,9 +96,9 @@ export default {
       passwordRules: [v => !!v || "Password is required"],
       notFound: null,
       completed: false,
-      imageName: "",
-      imageUrl: "",
-      imageFile: ""
+      imageName: null,
+      imageUrl: null,
+      imageFile: null
     };
   },
   computed: {
@@ -128,42 +130,29 @@ export default {
           this.imageFile = files[0];
         });
       } else {
-        this.imageName = "";
-        this.imageFile = "";
-        this.imageUrl = "";
+        this.imageName = null;
+        this.imageFile = null;
+        this.imageUrl = null;
       }
     },
-    submit() {
+    async submit() {
       this.loading = true;
       if (this.$refs.form.validate()) {
-        axios
-          .post("/api/tenant", this.form)
-          .then(result => {
-            axios
-              .put(
-                "/api/tenant/" + result.data.tenant + "/logo",
-                this.imageFile,
-                {
-                  headers: {
-                    "Content-Type": "image/png"
-                  }
-                }
-              )
-              // eslint-disable-next-line no-unused-vars
-              .then(result => {
-                this.completed = true;
-                this.loading = false;
-              });
-
-            for (var cookie of result.data.cookies) {
-              console.log("Setting cookie " + cookie);
-              document.cookie = cookie;
-            }
-          })
-          .catch(err => {
-            console.log(err);
-            this.loading = false;
+        if (this.imageFile) {
+          var presignedPutURL = await axios.post("/api/media", {
+            content_type: this.imageFile.type
           });
+          await axios.put(presignedPutURL.data.url, this.imageFile);
+          this.form.media_id = presignedPutURL.data.media_id;
+        }
+
+        axios.post("/api/tenant", this.form).then(tenantCreationResult => {
+          for (var cookie of tenantCreationResult.data.cookies) {
+            document.cookie = cookie;
+          }
+          this.loading = false;
+          this.completed = true;
+        });
       }
     }
   }
