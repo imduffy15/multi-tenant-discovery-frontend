@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-toolbar app>
+    <v-toolbar dark app color="blue">
       <v-toolbar-title class="headline text-uppercase">
         <span class="font-weight-light">Tenant Manager</span>
       </v-toolbar-title>
